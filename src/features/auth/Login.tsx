@@ -54,7 +54,7 @@ export default function Login() {
   return (
     <div className="flex h-screen w-full">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#5B21B6] via-[#6d28d9] to-[#7c3aed] relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#f8aa14] via-[#f59e0b] to-[#ea580c] relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L2c+PC9zdmc+')] opacity-30"></div>
         
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
@@ -139,7 +139,7 @@ export default function Login() {
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
-            <div className="p-2 bg-[#5B21B6] rounded-lg">
+            <div className="p-2 bg-[#f8aa14] rounded-lg">
               <Shield className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -221,7 +221,7 @@ export default function Login() {
               </div>
               <a
                 href="#"
-                className="font-[family-name:var(--font-body)] text-sm text-[#5B21B6] hover:text-[#6d28d9] transition-colors"
+                className="font-[family-name:var(--font-body)] text-sm text-primary hover:text-primary/90 transition-colors"
               >
                 ¿Olvidaste tu contraseña?
               </a>
@@ -230,7 +230,7 @@ export default function Login() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 bg-[#5B21B6] hover:bg-[#6d28d9] font-[family-name:var(--font-body)]"
+              className="w-full h-11 bg-primary hover:bg-primary/90 font-[family-name:var(--font-body)]"
             >
               {isLoading ? "Iniciando..." : "Acceder a la Plataforma"}
             </Button>
@@ -247,7 +247,7 @@ export default function Login() {
               ¿Necesitas acceso?{" "}
               <a
                 href="#"
-                className="text-[#5B21B6] hover:text-[#6d28d9] font-medium transition-colors"
+                className="text-primary hover:text-primary/90 font-medium transition-colors"
               >
                 Contacta al administrador
               </a>

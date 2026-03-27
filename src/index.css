@@ -6,67 +6,56 @@
 
 @layer base {
   :root {
-    /* Paleta Light - Observatorio Academic */
-    --background: #FFFFFF;
-    --foreground: #0F172A;
-    --muted: #F1F5F9;
-    --muted-foreground: #475569;
-    
-    --card: #F8FAFC;
-    --card-foreground: #0F172A;
-    
-    --primary: #4C1D95; /* Morado Institucional */
-    --primary-foreground: #FFFFFF;
-    
-    --accent: #F5F3FF;
-    --accent-foreground: #4C1D95;
-    
-    --border: #E2E8F0;
-    --input: #F8FAFC;
-    --ring: #4C1D95;
-    
-    --radius: 0.75rem;
-
-    --font-heading: "Manrope Variable", sans-serif;
-    --font-body: "Inter", sans-serif;
-
-
-    /* Semantic Colors */
-    --pending-bg: #FEF3C7;
-    --pending-text: #92400E;
-    --progress-bg: #DBEAFE;
-    --progress-text: #1E40AF;
-    --completed-bg: #D1FAE5;
-    --completed-text: #065F46;
+    --font-size: 16px;
+    --font-heading: 'Lato', sans-serif;
+    --font-body: 'Lexend', sans-serif;
+    --background: #F9FAFB;
+    --foreground: #000000;
+    --card: #ffffff;
+    --card-foreground: #000000;
+    --popover: oklch(1 0 0);
+    --popover-foreground: #000000;
+    --primary: #f8aa14;
+    --primary-foreground: #ffffff;
+    --secondary: #436DA2;
+    --secondary-foreground: #ffffff;
+    --muted: #E5E7EB;
+    --muted-foreground: #6B7280;
+    --accent: #FEF3C7;
+    --accent-foreground: #000000;
+    --destructive: #d4183d;
+    --destructive-foreground: #ffffff;
+    --border: rgba(0, 0, 0, 0.1);
+    --input: transparent;
+    --input-background: #F3F4F6;
+    --switch-background: #cbced4;
+    --font-weight-medium: 500;
+    --font-weight-normal: 400;
+    --ring: #f8aa14;
+    --chart-1: #f8aa14;
+    --chart-2: #436DA2;
+    --chart-3: #1478F7;
+    --chart-4: #B88D3D;
+    --chart-5: #786646;
+    --radius: 0.625rem;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #000000;
+    --sidebar-primary: #f8aa14;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #FEF3C7;
+    --sidebar-accent-foreground: #000000;
+    --sidebar-border: #E5E7EB;
+    --sidebar-ring: #f8aa14;
   }
 
+  /* For this project, el modo oscuro ya no se usa en producción */
   .dark {
-    /* Paleta Dark - Observatorio Academic */
     --background: #0F172A;
     --foreground: #F8FAFC;
-    --muted: #334155;
-    --muted-foreground: #94A3B8;
-    
     --card: #1E293B;
     --card-foreground: #F8FAFC;
-    
     --primary: #8B5CF6;
     --primary-foreground: #FFFFFF;
-    
-    --accent: #2E1065;
-    --accent-foreground: #FFFFFF;
-    
-    --border: #334155;
-    --input: #1E293B;
-    --ring: #8B5CF6;
-
-    /* Semantic Colors Dark */
-    --pending-bg: #451A03;
-    --pending-text: #FCD34D;
-    --progress-bg: #172554;
-    --progress-text: #93C5FD;
-    --completed-bg: #064E3B;
-    --completed-text: #6EE7B7;
   }
 }
 
