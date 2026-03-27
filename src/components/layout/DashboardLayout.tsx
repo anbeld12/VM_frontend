@@ -70,7 +70,7 @@ export default function DashboardLayout() {
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mt-1">Admin</div>
             </div>
             <div className="h-10 w-10 rounded-full border-2 border-white shadow-md cursor-pointer hover:ring-2 hover:ring-purple-200 transition-all overflow-hidden bg-slate-100">
-               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
+               <img src={`${import.meta.env.VITE_AVATAR_SERVICE_URL}?seed=Felix`} alt="User" />
             </div>
           </div>
         </div>
