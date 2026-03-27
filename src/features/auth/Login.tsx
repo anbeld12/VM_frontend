@@ -1,145 +1,256 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ChevronRight } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useState } from "react";
+import { Eye, EyeOff, Shield, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const login = useAuthStore((s) => s.login);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/app/inbox');
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await login({ email, password });
+
+      // TODO(opcional): implementar persistencia por "rememberMe" (hoy siempre usamos localStorage).
+      void rememberMe;
+
+      navigate("/app/inbox", { replace: true });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data
+        const detail =
+          typeof data === "object" && data !== null && "detail" in data
+            ? (data as { detail?: unknown }).detail
+            : undefined
+        setError(
+          typeof detail === "string"
+            ? detail
+            : err.message || "No se pudo iniciar sesión. Verifica tus credenciales."
+        );
+      } else {
+        setError("No se pudo iniciar sesión. Verifica tus credenciales.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background font-sans overflow-hidden">
-      {/* Columna Izquierda - Branding (Unified 50%) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-primary flex-col justify-center p-16 xl:p-24 overflow-hidden">
-        {/* Contenido Izquierdo - Tipografía Académica Limpia */}
-        <div className="relative z-10 max-w-lg">
-          <div className="flex items-center space-x-3 mb-10">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/10">
-              <span className="text-white font-bold text-lg leading-none">V</span>
+    <div className="flex h-screen w-full">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#5B21B6] via-[#6d28d9] to-[#7c3aed] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L2c+PC9zdmc+')] opacity-30"></div>
+        
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2.5 bg-white/10 rounded-lg backdrop-blur-sm">
+                <Shield className="w-8 h-8" />
+              </div>
+              <div>
+                <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight">
+                  Observatorio V&M
+                </h1>
+                <p className="font-[family-name:var(--font-body)] text-sm text-white/80 mt-0.5">
+                  Verdad y Memoria
+                </p>
+              </div>
             </div>
-            <h2 className="text-white/80 font-['Manrope'] font-bold text-sm tracking-[0.1em] uppercase">Observatorio V&M</h2>
           </div>
-          
-          <h1 className="text-5xl xl:text-6xl font-bold font-['Manrope'] mb-8 text-white tracking-[-0.03em] leading-tight">
-            Inteligencia para <br />
-            los Derechos Humanos
-          </h1>
-          <p className="text-white/70 text-xl leading-relaxed font-medium max-w-md">
-            Plataforma académica diseñada para el análisis crítico, el monitoreo sistemático y la curaduría digital de datos humanitarios.
-          </p>
-        </div>
 
-        {/* Decoración sutil de fondo (Sin imagen) */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-[family-name:var(--font-heading)] text-4xl font-bold leading-tight mb-4">
+                Plataforma de Investigación
+              </h2>
+              <p className="font-[family-name:var(--font-body)] text-lg text-white/90 leading-relaxed">
+                Sistema de clasificación cualitativa de artículos noticiosos sobre el
+                Proceso de Paz y el Conflicto Armado Colombiano.
+              </p>
+            </div>
+
+            <div className="space-y-4 pt-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-white/10 rounded-md backdrop-blur-sm mt-0.5">
+                  <Lock className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-[family-name:var(--font-heading)] font-semibold mb-1">
+                    Acceso Seguro
+                  </h3>
+                  <p className="font-[family-name:var(--font-body)] text-sm text-white/80">
+                    Plataforma interna protegida para investigadores de derechos humanos
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-white/10 rounded-md backdrop-blur-sm mt-0.5">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-[family-name:var(--font-heading)] font-semibold mb-1">
+                    Análisis Cualitativo
+                  </h3>
+                  <p className="font-[family-name:var(--font-body)] text-sm text-white/80">
+                    Herramientas especializadas para clasificación y análisis de contenido
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="font-[family-name:var(--font-body)] text-sm text-white/60">
+            © 2026 Observatorio V&M. Todos los derechos reservados.
+          </div>
+        </div>
       </div>
 
-      {/* Columna Derecha - Formulario (Unified 50%) */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center p-8 sm:p-16 lg:p-24 bg-background">
-        <div className="w-full max-w-[400px] space-y-10">
-          {/* Encabezado del Formulario */}
-          <div className="space-y-4">
-            <h2 className="text-4xl font-bold tracking-[-0.02em] text-foreground font-['Manrope']">Iniciar Sesión</h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              Acceda a su panel de investigador especializado.
+      {/* Right Side - Login Form */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+        <div className="w-full max-w-md space-y-8">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center justify-center gap-2 mb-8">
+            <div className="p-2 bg-[#5B21B6] rounded-lg">
+              <Shield className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="font-[family-name:var(--font-heading)] text-xl font-bold">
+                Observatorio V&M
+              </h1>
+              <p className="font-[family-name:var(--font-body)] text-xs text-muted-foreground">
+                Verdad y Memoria
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2 text-center lg:text-left">
+            <h2 className="font-[family-name:var(--font-heading)] text-3xl font-bold tracking-tight">
+              Iniciar Sesión
+            </h2>
+            <p className="font-[family-name:var(--font-body)] text-muted-foreground">
+              Ingresa tus credenciales para acceder a la plataforma
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-8">
-            <div className="space-y-6">
-              {/* Email */}
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80 ml-1">
-                  Correo Electrónico
-                </Label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="nombre@institucion.org"
-                    className="h-14 pl-12 bg-muted/40 border-none text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:bg-white transition-all rounded-xl text-base shadow-sm"
-                    required
-                  />
-                </div>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="font-[family-name:var(--font-body)]">
+                Correo Electrónico
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="investigador@ejemplo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="font-[family-name:var(--font-body)] h-11"
+              />
+            </div>
 
-              {/* Password */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between px-1">
-                  <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">
-                    Contraseña
-                  </Label>
-                </div>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
-                    <Lock className="w-5 h-5" />
-                  </div>
-                  <Input 
-                    id="password" 
-                    type={showPassword ? "text" : "password"} 
-                    placeholder="••••••••"
-                    className="h-14 pl-12 pr-12 bg-muted/40 border-none text-foreground focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:bg-white transition-all rounded-xl text-base shadow-sm"
-                    required
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="font-[family-name:var(--font-body)]">
+                Contraseña
+              </Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="font-[family-name:var(--font-body)] h-11 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
             </div>
 
-            {/* Opciones Adicionales */}
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center space-x-3">
-                <Checkbox 
-                  id="remember" 
-                  className="w-5 h-5 rounded-md border-muted-foreground/20 data-[state=checked]:bg-primary transition-all shadow-sm" 
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 />
-                <Label htmlFor="remember" className="text-sm text-muted-foreground font-medium cursor-pointer">
-                  Mantener activa
-                </Label>
+                <label
+                  htmlFor="remember"
+                  className="font-[family-name:var(--font-body)] text-sm cursor-pointer"
+                >
+                  Recordarme
+                </label>
               </div>
-              <a href="#" className="text-sm font-bold text-primary hover:underline underline-offset-4">
-                ¿Olvidó su contraseña?
+              <a
+                href="#"
+                className="font-[family-name:var(--font-body)] text-sm text-[#5B21B6] hover:text-[#6d28d9] transition-colors"
+              >
+                ¿Olvidaste tu contraseña?
               </a>
             </div>
 
-            {/* Botón de Submit - Signature Style */}
-            <Button 
-              type="submit" 
-              className="w-full h-14 bg-primary hover:opacity-95 text-white font-bold text-lg rounded-xl transition-all shadow-xl shadow-primary/10 flex items-center justify-center space-x-2"
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-11 bg-[#5B21B6] hover:bg-[#6d28d9] font-[family-name:var(--font-body)]"
             >
-              <span>Ingresar al Sistema</span>
-              <ChevronRight className="w-5 h-5" />
+              {isLoading ? "Iniciando..." : "Acceder a la Plataforma"}
             </Button>
+
+            {error && (
+              <p className="font-[family-name:var(--font-body)] text-sm text-red-600">
+                {error}
+              </p>
+            )}
           </form>
 
-          {/* Footer Minimalista (Simplificado) */}
-          <div className="pt-10 text-center space-y-6">
-            <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-              ¿No tienes cuenta? <br />
-              <button className="text-foreground font-bold underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all">
-                Contacta al administrador del sistema.
-              </button>
-            </p>
-            
-            <p className="text-[10px] text-muted-foreground/40 leading-normal max-w-[280px] mx-auto uppercase tracking-tighter">
-              Asegúrese de usar sus credenciales institucionales otorgadas por el Observatorio.
+          <div className="pt-4 border-t border-border">
+            <p className="font-[family-name:var(--font-body)] text-center text-sm text-muted-foreground">
+              ¿Necesitas acceso?{" "}
+              <a
+                href="#"
+                className="text-[#5B21B6] hover:text-[#6d28d9] font-medium transition-colors"
+              >
+                Contacta al administrador
+              </a>
             </p>
           </div>
         </div>

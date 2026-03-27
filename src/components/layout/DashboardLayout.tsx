@@ -2,8 +2,11 @@ import { NavLink, Outlet } from "react-router-dom"
 import { Monitor, BarChart3, LayoutGrid, Settings, Bell, HelpCircle, LogOut } from "lucide-react"
 import { ThemeToggle } from "./ThemeToggle"
 import { Button } from "@/components/ui/button"
+import { useAuthStore } from "@/store/authStore"
 
 export default function DashboardLayout() {
+  const logout = useAuthStore((s) => s.logout)
+
   const topNavItems = [
     { name: "Bandeja de Entrada", path: "/app/inbox" },
     { name: "Análisis", path: "/app/analysis" },
@@ -93,9 +96,13 @@ export default function DashboardLayout() {
           ))}
           
           <div className="mt-auto flex flex-col items-center gap-8 pb-4">
-             <NavLink to="/" className="p-4 text-slate-200 hover:text-red-500 transition-all hover:bg-red-50 rounded-2xl">
-                <LogOut className="h-6 w-6" strokeWidth={2.5} />
-             </NavLink>
+            <NavLink
+              to="/login"
+              onClick={() => logout()}
+              className="p-4 text-slate-200 hover:text-red-500 transition-all hover:bg-red-50 rounded-2xl"
+            >
+              <LogOut className="h-6 w-6" strokeWidth={2.5} />
+            </NavLink>
           </div>
         </aside>
 

@@ -1,200 +1,402 @@
-import { Search, Calendar, Filter, Eye, Terminal, MoreHorizontal, ArrowUpRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Search,
+  Calendar,
+  SlidersHorizontal,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const MOCK_NEWS = [
-  {
-    id: 1,
-    fuente: "El País",
-    logo: "EP",
-    titular: "Nuevas medidas de seguridad en la frontera sur...",
-    publicacion: "12 Oct 2023, 08:30",
-    captura: "Hace 2 horas",
-    estado: "PENDING",
-  },
-  {
-    id: 2,
-    fuente: "The New York Times",
-    logo: "NYT",
-    titular: "Global analysis of civil liberties in digital...",
-    publicacion: "11 Oct 2023, 22:15",
-    captura: "Hace 12 horas",
-    estado: "IN PROGRESS",
-  },
-  {
-    id: 3,
-    fuente: "The Guardian",
-    logo: "GN",
-    titular: "Environmental activists face increased risks in...",
-    publicacion: "10 Oct 2023, 14:00",
-    captura: "Ayer",
-    estado: "COMPLETED",
-  },
-  {
-    id: 4,
-    fuente: "Deutsche Welle",
-    logo: "DW",
-    titular: "Refugiados climáticos: el nuevo reto para el...",
-    publicacion: "10 Oct 2023, 09:20",
-    captura: "Ayer",
-    estado: "PENDING",
-  },
-  {
-    id: 5,
-    fuente: "Radio France",
-    logo: "RF",
-    titular: "Inégalités croissantes dans l'accès à l'éducatio...",
-    publicacion: "09 Oct 2023, 11:45",
-    captura: "2 días",
-    estado: "COMPLETED",
-  },
-]
+type ArticleStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
 
-const STATUS_VARIANTS: Record<string, string> = {
-  PENDING: "bg-[#FFEDD5] text-[#9A3412] hover:bg-[#FFEDD5]",
-  "IN PROGRESS": "bg-[#E0F2FE] text-[#0369A1] hover:bg-[#E0F2FE]",
-  COMPLETED: "bg-[#DCFCE7] text-[#15803D] hover:bg-[#DCFCE7]",
+interface Article {
+  id: string;
+  title: string;
+  source: string;
+  date: string;
+  assignedTo: string;
+  status: ArticleStatus;
+  category: string;
+  priority: "high" | "medium" | "low";
 }
 
+const mockArticles: Article[] = [
+  {
+    id: "1",
+    title: "Acuerdo de paz avanza en zonas rurales del Cauca",
+    source: "El Espectador",
+    date: "2026-03-25T08:30:00",
+    assignedTo: "María Rodríguez",
+    status: "IN_PROGRESS",
+    category: "Implementación",
+    priority: "high",
+  },
+  {
+    id: "2",
+    title: "Víctimas del conflicto armado reciben reparaciones simbólicas y materiales",
+    source: "El Tiempo",
+    date: "2026-03-24T11:15:00",
+    assignedTo: "Carlos Mendoza",
+    status: "PENDING",
+    category: "Víctimas",
+    priority: "medium",
+  },
+  {
+    id: "3",
+    title: "Reintegración de excombatientes: avances y desafíos en la implementación",
+    source: "Semana",
+    date: "2026-03-23T09:00:00",
+    assignedTo: "Ana López",
+    status: "COMPLETED",
+    category: "Reintegración",
+    priority: "medium",
+  },
+  {
+    id: "4",
+    title: "Comisión de la Verdad presenta nuevo informe regional sobre el conflicto",
+    source: "El Espectador",
+    date: "2026-03-22T07:45:00",
+    assignedTo: "María Rodríguez",
+    status: "PENDING",
+    category: "Verdad",
+    priority: "high",
+  },
+  {
+    id: "5",
+    title: "Desminado humanitario alcanza el 60% en zonas priorizadas del país",
+    source: "El Colombiano",
+    date: "2026-03-21T10:20:00",
+    assignedTo: "Juan Torres",
+    status: "IN_PROGRESS",
+    category: "Desminado",
+    priority: "low",
+  },
+  {
+    id: "6",
+    title: "Justicia Especial para la Paz dicta nuevas sentencias restaurativas",
+    source: "El Tiempo",
+    date: "2026-03-20T14:30:00",
+    assignedTo: "María Rodríguez",
+    status: "PENDING",
+    category: "Justicia",
+    priority: "high",
+  },
+  {
+    id: "7",
+    title: "Liderazgo social bajo amenaza en el Bajo Cauca antioqueño",
+    source: "El Tiempo",
+    date: "2026-03-15T08:30:00",
+    assignedTo: "María Rodríguez",
+    status: "PENDING",
+    category: "Seguridad",
+    priority: "high",
+  },
+  {
+    id: "8",
+    title: "Fallo histórico en favor de la restitución de tierras en el Caribe",
+    source: "El Espectador",
+    date: "2026-03-14T11:15:00",
+    assignedTo: "Carlos Mendoza",
+    status: "PENDING",
+    category: "Restitución",
+    priority: "medium",
+  },
+  {
+    id: "9",
+    title: "Los contratos ocultos tras la deforestación en la Amazonía",
+    source: "Cuestión Pública",
+    date: "2026-03-14T09:00:00",
+    assignedTo: "Ana López",
+    status: "PENDING",
+    category: "Ambiental",
+    priority: "medium",
+  },
+  {
+    id: "10",
+    title: "Crisis migratoria: nuevas rutas identificadas en el Darién",
+    source: "Noticias Caracol",
+    date: "2026-03-13T07:45:00",
+    assignedTo: "María Rodríguez",
+    status: "PENDING",
+    category: "Migración",
+    priority: "low",
+  },
+  {
+    id: "11",
+    title: "Radiografía de la impunidad en crímenes contra periodistas",
+    source: "Vorágine",
+    date: "2026-03-13T10:20:00",
+    assignedTo: "Juan Torres",
+    status: "PENDING",
+    category: "Periodismo",
+    priority: "high",
+  },
+];
+
+const sourceColors: Record<string, { bg: string; text: string; initials: string }> = {
+  "El Tiempo": { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400", initials: "ET" },
+  "El Espectador": { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", initials: "EE" },
+  "Semana": { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", initials: "SE" },
+  "El Colombiano": { bg: "bg-green-100 dark:bg-green-900/30", text: "text-green-700 dark:text-green-400", initials: "EC" },
+  "Cuestión Pública": { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400", initials: "CP" },
+  "Noticias Caracol": { bg: "bg-pink-100 dark:bg-pink-900/30", text: "text-pink-700 dark:text-pink-400", initials: "NC" },
+  "Vorágine": { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", initials: "VO" },
+};
+
+// NOTE: statusConfig/Badge no se usan todavía; se dejaron fuera para evitar errores TS por imports/vars sin uso.
+
 export default function Inbox() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<string>("");
+
+  const allSources = Array.from(new Set(mockArticles.map((a) => a.source)));
+
+  const filteredArticles = mockArticles.filter((article) => {
+    const matchesSearch =
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.source.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSource =
+      sourceFilter === "all" || article.source === sourceFilter;
+
+    return matchesSearch && matchesSource;
+  });
+
+  const handleRowClick = (articleId: string) => {
+    navigate(`/app/analysis/${articleId}`);
+  };
+
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-3">
-          <h1 className="text-4xl font-extrabold tracking-tight text-[#0F172A] font-heading">
-            Bandeja de Entrada
-          </h1>
-          <p className="text-lg text-slate-500 font-medium">
-            Gestión de inteligencia de derechos humanos y monitoreo de medios.
-          </p>
-        </div>
-        <Button className="h-12 px-8 bg-[#330075] hover:bg-[#4e05a9] text-white font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all active:scale-95">
-          <span className="text-xl">+</span>
-          Nueva Investigación
-        </Button>
-      </div>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="border-b border-border bg-card px-8 py-6">
+        <div className="flex flex-col gap-4">
+          <div>
+            <h1 className="font-[family-name:var(--font-heading)] text-3xl font-bold">
+              Bandeja de Entrada
+            </h1>
+            <p className="font-[family-name:var(--font-body)] text-muted-foreground mt-1">
+              Artículos asignados para clasificación y análisis
+            </p>
+          </div>
 
-      {/* Stats Card & Filters Grid (Surface Level 1) */}
-      <div className="flex flex-col xl:flex-row gap-6">
-        {/* Left: Highlight Stats Card (Direct Stitch Primary Gradient) */}
-        <div className="xl:w-80 bg-gradient-to-br from-[#330075] to-[#5B21B6] p-8 rounded-2xl text-white shadow-xl shadow-purple-200/40 relative overflow-hidden flex flex-col justify-between">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
-           <div className="space-y-2 relative z-10">
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/50">PENDIENTES HOY</span>
-              <div className="text-6xl font-black font-heading tracking-tighter italic">42</div>
-           </div>
-           <div className="mt-6 flex items-center justify-between relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-[11px] font-bold">
-                 <ArrowUpRight className="w-3 h-3" />
-                 +12% vs ayer
-              </span>
-           </div>
-        </div>
-
-        {/* Right: Search & Controls (Surface Level 2) */}
-        <div className="flex-1 bg-white p-4 rounded-2xl shadow-sm shadow-slate-200/30 flex flex-wrap items-center gap-4">
-             <div className="relative flex-1 min-w-[300px] h-14 group">
-                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-purple-600 transition-colors h-5 w-5" />
-                 <Input 
-                   placeholder="Buscar por titular, fuente o palabra clave..." 
-                   className="h-full pl-14 bg-slate-50 border-none rounded-xl text-md font-medium placeholder:text-slate-300 focus:bg-white transition-all ring-purple-100"
-                 />
-             </div>
-             <Button variant="outline" className="h-14 px-6 bg-slate-50 border-none rounded-xl text-slate-500 font-bold hover:bg-slate-100 transition-all flex items-center gap-3">
-                 <Calendar className="h-5 w-5 text-slate-300" />
-                 Rango de fechas
-             </Button>
-             <Button variant="outline" className="h-14 px-6 bg-slate-50 border-none rounded-xl text-slate-500 font-bold hover:bg-slate-100 transition-all flex items-center gap-3">
-                 <Filter className="h-5 w-5 text-slate-300" />
-                 Filtros
-             </Button>
-        </div>
-      </div>
-
-      {/* Data Table (Ink-on-Paper Style, No borders) */}
-      <div className="bg-white rounded-3xl overflow-hidden shadow-sm shadow-slate-200/20">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-white text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-50">
-              <th className="px-8 py-6">FUENTE DE MEDIOS</th>
-              <th className="px-8 py-6">TITULAR DE NOTICIA</th>
-              <th className="px-8 py-6">PUBLICACIÓN</th>
-              <th className="px-8 py-6">CAPTURA</th>
-              <th className="px-8 py-6">ESTADO</th>
-              <th className="px-8 py-6 text-right">ACCIONES</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {MOCK_NEWS.map((news) => (
-              <tr key={news.id} className="group hover:bg-purple-50/30 transition-all cursor-pointer">
-                <td className="px-8 py-8">
-                  <div className="flex items-center gap-4">
-                     <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-400 group-hover:bg-[#5B21B6]/10 group-hover:text-[#5B21B6] transition-colors">
-                        {news.logo}
-                     </div>
-                     <span className="text-sm font-bold text-slate-900">{news.fuente}</span>
-                  </div>
-                </td>
-                <td className="px-8 py-8">
-                  <p className="text-sm font-extrabold text-[#0F172A] leading-relaxed max-w-md group-hover:text-[#5B21B6] transition-colors line-clamp-2">
-                    {news.titular}
-                  </p>
-                </td>
-                <td className="px-8 py-8">
-                  <p className="text-xs font-bold text-slate-400">{news.publicacion}</p>
-                </td>
-                <td className="px-8 py-8">
-                  <p className="text-xs font-bold text-slate-400">{news.captura}</p>
-                </td>
-                <td className="px-8 py-8">
-                  <Badge className={`rounded-md font-black text-[9px] px-3 py-1 shadow-none transition-transform group-hover:scale-105 ${STATUS_VARIANTS[news.estado]}`}>
-                    {news.estado}
-                  </Badge>
-                </td>
-                <td className="px-8 py-8 text-right">
-                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                    <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl">
-                      <Terminal className="h-5 w-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-400 hover:text-[#5B21B6] hover:bg-purple-50 rounded-xl">
-                      <Eye className="h-5 w-5" />
-                    </Button>
-                  </div>
-                  <MoreHorizontal className="h-5 w-5 text-slate-200 group-hover:hidden float-right" />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Pagination Footer */}
-        <div className="px-8 py-6 bg-slate-50/50 flex items-center justify-between border-t border-slate-50">
-            <span className="text-[11px] font-bold text-slate-400">
-               Mostrando 1-5 de 1,240 registros
-            </span>
-            <div className="flex items-center gap-2">
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 bg-white shadow-sm font-bold rounded-lg text-[11px]">1</Button>
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 font-bold rounded-md text-[11px]">2</Button>
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 font-bold rounded-md text-[11px]">3</Button>
-                <span className="text-slate-300">...</span>
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 font-bold rounded-md text-[11px]">82</Button>
+          {/* Stats */}
+          <div className="flex gap-4 flex-wrap">
+            <div className="px-4 py-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
+              <p className="font-[family-name:var(--font-body)] text-sm text-muted-foreground">
+                Pendientes
+              </p>
+              <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-amber-700 dark:text-amber-400">
+                {mockArticles.filter((a) => a.status === "PENDING").length}
+              </p>
             </div>
+            <div className="px-4 py-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
+              <p className="font-[family-name:var(--font-body)] text-sm text-muted-foreground">
+                En Progreso
+              </p>
+              <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-blue-700 dark:text-blue-400">
+                {mockArticles.filter((a) => a.status === "IN_PROGRESS").length}
+              </p>
+            </div>
+            <div className="px-4 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+              <p className="font-[family-name:var(--font-body)] text-sm text-muted-foreground">
+                Completados
+              </p>
+              <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+                {mockArticles.filter((a) => a.status === "COMPLETED").length}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-      
-      {/* Editorial Footer Grid */}
-      <footer className="pt-10 flex items-center justify-between border-t border-slate-100">
-         <div className="text-[9px] font-black text-slate-300 uppercase tracking-[0.25em]">
-            © 2023 OBSERVATORIO V&M INTELLIGENCE FRAMEWORK
-         </div>
-         <div className="flex items-center gap-10">
-            {['SEGURIDAD DE DATOS', 'PROTOCOLO DE ANÁLISIS', 'EXPORTAR TODO (CSV)'].map(link => (
-                <a key={link} href="#" className="text-[9px] font-black text-slate-400 hover:text-slate-900 tracking-[0.1em] transition-colors">{link}</a>
-            ))}
-         </div>
-      </footer>
+
+      {/* Filters */}
+      <div className="border-b border-border bg-card px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+          {/* Search */}
+          <div className="lg:col-span-5">
+            <label className="font-[family-name:var(--font-body)] text-sm text-foreground mb-2 block">
+              Buscar por palabras clave
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Título, contenido o descriptores..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 font-[family-name:var(--font-body)] h-10"
+              />
+            </div>
+          </div>
+
+          {/* Source Filter */}
+          <div className="lg:col-span-3">
+            <label className="font-[family-name:var(--font-body)] text-sm text-foreground mb-2 block">
+              Fuente de Medios
+            </label>
+            <Select
+              value={sourceFilter}
+              onValueChange={(value) => setSourceFilter(value ?? "all")}
+            >
+              <SelectTrigger className="w-full font-[family-name:var(--font-body)] h-10">
+                <SelectValue placeholder="Todas las fuentes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  Todas las fuentes ({mockArticles.length})
+                </SelectItem>
+                {allSources.map((source) => {
+                  const count = mockArticles.filter((a) => a.source === source).length;
+                  return (
+                    <SelectItem key={source} value={source}>
+                      {source} ({count})
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Range */}
+          <div className="lg:col-span-3">
+            <label className="font-[family-name:var(--font-body)] text-sm text-foreground mb-2 block">
+              Fecha de Publicación
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="10/10/2023 - 17/10/2023"
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value)}
+                className="pl-9 font-[family-name:var(--font-body)] h-10"
+              />
+            </div>
+          </div>
+
+          {/* Advanced Filters Button */}
+          <div className="lg:col-span-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-10 w-10"
+              title="Filtros avanzados"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-auto px-8 py-6">
+        <div className="rounded-lg border border-border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b-2">
+                <TableHead className="font-[family-name:var(--font-heading)] text-xs uppercase tracking-wider text-muted-foreground font-semibold py-4">
+                  Fuente
+                </TableHead>
+                <TableHead className="font-[family-name:var(--font-heading)] text-xs uppercase tracking-wider text-muted-foreground font-semibold py-4">
+                  Título de la Noticia
+                </TableHead>
+                <TableHead className="font-[family-name:var(--font-heading)] text-xs uppercase tracking-wider text-muted-foreground font-semibold py-4">
+                  Fecha de Publicación
+                </TableHead>
+                <TableHead className="font-[family-name:var(--font-heading)] text-xs uppercase tracking-wider text-muted-foreground font-semibold py-4 text-right">
+                  Acciones
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredArticles.map((article) => {
+                const sourceInfo = sourceColors[article.source] || {
+                  bg: "bg-gray-100 dark:bg-gray-900/30",
+                  text: "text-gray-700 dark:text-gray-400",
+                  initials: article.source.substring(0, 2).toUpperCase(),
+                };
+                
+                return (
+                  <TableRow
+                    key={article.id}
+                    className="hover:bg-accent/30 transition-colors border-b last:border-0"
+                  >
+                    <TableCell className="font-[family-name:var(--font-body)] py-5">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`${sourceInfo.bg} ${sourceInfo.text} w-10 h-10 rounded flex items-center justify-center flex-shrink-0`}
+                        >
+                          <span className="text-xs font-bold">
+                            {sourceInfo.initials}
+                          </span>
+                        </div>
+                        <span className="font-medium text-sm">
+                          {article.source}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-[family-name:var(--font-body)] py-5">
+                      <div className="max-w-2xl">
+                        <p className="text-sm leading-relaxed">
+                          {article.title}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-[family-name:var(--font-body)] text-muted-foreground py-5">
+                      <span className="text-sm">
+                        {new Date(article.date).toLocaleDateString("es-CO", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                        {", "}
+                        {new Date(article.date).toLocaleTimeString("es-CO", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-5 text-right">
+                      <Button
+                        onClick={() => handleRowClick(article.id)}
+                        className="bg-[#5B21B6] hover:bg-[#6d28d9] text-white font-[family-name:var(--font-body)] text-sm px-6"
+                      >
+                        Clasificar
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+
+          {filteredArticles.length === 0 && (
+            <div className="py-12 text-center">
+              <p className="font-[family-name:var(--font-body)] text-muted-foreground">
+                No se encontraron artículos con los filtros seleccionados
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-  )
+  );
 }
